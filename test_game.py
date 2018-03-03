@@ -5,15 +5,14 @@
 # copy phaser.min.js
 #
 # START WEB SERVER
-# cd test folder
 # python -m http.server
 #
 # REQUEST PAGE
 # open filename.html
 
-# CLEANUP ---------- TODO
+# CLEANUP
 # ps
-# kill -p 'the number of the python -m httpserver process
+# kill -p 'the process ID of the python -m httpserver process'
 
 import os # for sending commands to terminal
 import sys # for getting python command line arguments
@@ -50,8 +49,11 @@ os.system("open -n -a \"Google Chrome\" --args \"--new-window\" "
 
 print("opened web page")
 
-# CLEAN UP
+# Let the user try out the game
+
 input("Press Enter to continue...")
+
+# CLEAN UP
 
 # find the process for http.server and kill it
 processes = os.popen("ps").read()
