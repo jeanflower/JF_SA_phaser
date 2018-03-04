@@ -25,6 +25,7 @@ os.system('mkdir '+unique_name)
 os.system('mkdir '+unique_name+"/assets")
 os.system('cp index.html '+unique_name+"/"+unique_name+".html")
 os.system('cp assets/paddle.png '+unique_name+"/assets/paddle.png")
+os.system('cp assets/ball.png '+unique_name+"/assets/ball.png")
 
 print(sys.argv)
 
