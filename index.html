@@ -15,95 +15,79 @@
             var game = new Phaser.Game(800,600,Phaser.AUTO,'pong',{
                 preload: preload,
                 create: create,
-                update: update,
-                render: render
+                update: update
             });
             
-            //alert("made the Game")
-            var paddle1;
-            var paddle2;
-            var ball;
-            
-            var ball_launched;
-            var ball_velocity;
-            
-            //game.input.onMouseDown.add(this.launch_ball, this); // doesn't work
+            var paddle;
+            var ball_list;
             
             function preload(){
-                //alert("in preload")
                 game.load.image('paddle','assets/paddle.png');
                 game.load.image('ball','assets/ball.png');
             }    
             
             
-            function create(){
-                
-                ball_launched = false;
-                ball_velocity = 400;
-                //alert("in create")
-                paddle1 = create_paddle(0,game.world.centerY);
-                paddle2 = create_paddle(game.world.width - 16,game.world.centerY);
-                ball = create_ball(game.world.centerX,game.world.centerY);
-                
+            function create(){                
+                paddle = create_paddle(0,game.world.centerY);
+                x_coords = [30, 50, 70, 90];
+                y_coords = [30, 50];
+                ball_list = [];
+                for(var i = 0; i < x_coords.length; i++){
+                    x = x_coords[i];
+                    for(var j = 0; j < y_coords.length; j++){
+                        y = y_coords[j];
+                        ball_list.push(create_ball(x, y));
+                    }
+                }
                 game.input.mouse.capture = true;
-                game.input.activePointer.leftButton.isDown
-
             }
             
             function update(){
-                //alert("in update")
-                control_paddle(paddle1,game.input.y);
+                control_paddle(paddle,game.input.y);
+                for(var i = 0; i < ball_list.length; ++i){
+                    var ball = ball_list[i];
+                    game.physics.arcade.collide(paddle, ball);
+                    if(ball.body.blocked.left){
+                        alert("you lost!")
+                    }
+                    ball.body.velocity.setTo(
+                            ball.body.velocity.x,
+                            ball.body.velocity.y + 2); // gravity adds
+                }
+            }
+            
+            function make_sprite(x, y, type){
+                var result = game.add.sprite(x,y,type);
+                result.anchor.setTo(0.5,0.5);
+                game.physics.arcade.enable(result);
+                result.body.collideWorldBounds = true;
+                return result;
             }
             
             function create_paddle(x,y){
-                //alert("in create_paddle")
-                var paddle = game.add.sprite(x,y,'paddle');
-                paddle.anchor.setTo(0.5,0.5);
-                game.physics.arcade.enable(paddle);
-                paddle.body.collideWorldBounds = true;
+                var paddle = make_sprite(x, y, 'paddle')
+                paddle.body.immovable = true;                
                 return paddle;
             }
             
             function create_ball(x,y){
-                var ball = game.add.sprite(x,y,'ball');
-                ball.anchor.setTo(0.5,0.5);
-                game.physics.arcade.enable(ball);
-                ball.body.collideWorldBounds = true;
+                var ball = make_sprite(x, y, 'ball')
                 ball.body.bounce.setTo(1,1);
+                ball.body.velocity.x = 200 + Math.floor((Math.random() * 40));
+                ball.body.velocity.y = Math.floor((Math.random() * 40)) - 20;
                 return ball;
-                
             }
             
             function control_paddle(paddle,y){
-                //alert("in control_paddle")
                 paddle.y = y;
-                if(paddle.y < paddle.height/2){
-                    paddle.y = paddle.height/2;
-                } else if(paddle.y > game.world.height - paddle.height/2){
-                    paddle.y = game.world.height - paddle.height/2;
+                // block motion at top and bottom of screen
+                lower_limit = paddle.height/2;
+                upper_limit = game.world.height - paddle.height/2
+                if(paddle.y < lower_limit){
+                    paddle.y = lower_limit;
+                } else if(paddle.y > upper_limit){
+                    paddle.y = upper_limit;
                 }
-            }
-            function launch_ball(){
-                //alert('launching')
-                if(ball_launched){
-                    ball.x = game.world.centerX;
-                    ball.y = game.world.centerY;
-                    ball.body.velocity.setTo(0,0);
-                    ball_launched = false;
-                } else{
-                    ball.body.velocity.x = -ball_velocity;
-                    ball.body.velocity.y = ball_velocity;
-                    ball_launched = true;
-                }
-            }
-            function render() {
-                if(game.input.activePointer.leftButton.isDown){
-                    launch_ball();
-                }
-                //game.debug.text("Left Button: " + game.input.activePointer.leftButton.isDown, 300, 132);
-                //game.debug.text("Middle Button: " + game.input.activePointer.middleButton.isDown, 300, 196);
-                //game.debug.text("Right Button: " + game.input.activePointer.rightButton.isDown, 300, 260);
-
             }
         </script>
     </body>
