@@ -18,41 +18,44 @@
                 update: update
             });
             
-            var paddle;
             var ball_list;
             
             function preload(){
-                game.load.image('paddle','assets/paddle.png');
                 game.load.image('ball','assets/ball.png');
+                game.load.image('ball2','assets/ball2.png');
             }    
             
             
-            function create(){                
-                paddle = create_paddle(0,game.world.centerY);
+            function create(){
                 x_coords = [30, 50, 70, 90];
-                y_coords = [30, 50];
+                y_coords = [30, 50, 70, 90, 110, 130];
                 ball_list = [];
                 for(var i = 0; i < x_coords.length; i++){
                     x = x_coords[i];
                     for(var j = 0; j < y_coords.length; j++){
                         y = y_coords[j];
-                        ball_list.push(create_ball(x, y));
+                        if( i == 0 && j == 0 )
+                            ball_list.push(create_ball(x, y, 'ball'));
+                        else
+                            ball_list.push(create_ball(x, y, 'ball2'));
                     }
                 }
                 game.input.mouse.capture = true;
             }
             
             function update(){
-                control_paddle(paddle,game.input.y);
                 for(var i = 0; i < ball_list.length; ++i){
                     var ball = ball_list[i];
-                    game.physics.arcade.collide(paddle, ball);
-                    if(ball.body.blocked.left){
-                        alert("you lost!")
+                    for(var j = 0; j < ball_list.length; j++){
+                        if( i==j ){
+                                continue;
+                        }
+                        var ballj = ball_list[j];
+                        game.physics.arcade.collide(ball, ballj);
                     }
                     ball.body.velocity.setTo(
                             ball.body.velocity.x,
-                            ball.body.velocity.y + 2); // gravity adds
+                            ball.body.velocity.y + 1); // gravity adds
                 }
             }
             
@@ -64,30 +67,12 @@
                 return result;
             }
             
-            function create_paddle(x,y){
-                var paddle = make_sprite(x, y, 'paddle')
-                paddle.body.immovable = true;                
-                return paddle;
-            }
-            
-            function create_ball(x,y){
-                var ball = make_sprite(x, y, 'ball')
+            function create_ball(x, y, png){
+                var ball = make_sprite(x, y, png)
                 ball.body.bounce.setTo(1,1);
-                ball.body.velocity.x = 200 + Math.floor((Math.random() * 40));
-                ball.body.velocity.y = Math.floor((Math.random() * 40)) - 20;
+                ball.body.velocity.x = 200 + Math.floor((Math.random() * 20));
+                ball.body.velocity.y = Math.floor((Math.random() * 20)) - 10;
                 return ball;
-            }
-            
-            function control_paddle(paddle,y){
-                paddle.y = y;
-                // block motion at top and bottom of screen
-                lower_limit = paddle.height/2;
-                upper_limit = game.world.height - paddle.height/2
-                if(paddle.y < lower_limit){
-                    paddle.y = lower_limit;
-                } else if(paddle.y > upper_limit){
-                    paddle.y = upper_limit;
-                }
             }
         </script>
     </body>
